@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Foodie Spot — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Righteous&display=swap" rel="stylesheet"/>
+<style>
+/* ── SAME DESIGN TOKENS AS CUSTOMER ── */
+:root{
+  --bg:#f0faf4;--surface:#fff;--card:#fff;
+  --border:#d4eddf;--accent:#1db954;--accent-dark:#17a349;
+  --accent-light:#e8f8ee;--text:#0d2318;--muted:#5a7a68;
+  --danger:#e53935;--warning:#f59e0b;--info:#2563eb;
+  --shadow-sm:0 2px 8px rgba(29,185,84,0.08);
+  --shadow-md:0 6px 24px rgba(29,185,84,0.12);
+  --shadow-lg:0 12px 40px rgba(29,185,84,0.18);
+  --radius:16px;--radius-lg:24px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── SAME TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(255,255,255,0.95);backdrop-filter:blur(18px);
+  border-bottom:1.5px solid var(--border);
+  height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;box-shadow:var(--shadow-sm);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#0ea84a);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 10px rgba(29,185,84,0.35);}
+.brand-name{font-family:'Righteous',sans-serif;font-size:22px;letter-spacing:0.5px;}
+.brand-name span{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.admin-chip{display:flex;align-items:center;gap:8px;background:var(--accent-light);border:1.5px solid var(--border);padding:6px 14px;border-radius:50px;font-size:13px;font-weight:800;color:var(--accent-dark);}
+.logout-btn{background:transparent;border:2px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:50px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.18s;}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger);}
+
+/* ── NAV TABS ── */
+.nav-tabs{
+  display:flex;gap:0;
+  background:#fff;border-bottom:1.5px solid var(--border);
+  padding:0 22px;overflow-x:auto;
+}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.ntab{
+  display:flex;align-items:center;gap:7px;
+  padding:14px 20px;font-size:13px;font-weight:800;
+  color:var(--muted);cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:all 0.18s;white-space:nowrap;
+  background:none;border-left:none;border-right:none;border-top:none;
+  font-family:'Nunito',sans-serif;
+}
+.ntab:hover{color:var(--accent);}
+.ntab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── MAIN ── */
+.main{flex:1;padding:22px;max-width:1200px;width:100%;margin:0 auto;}
+.pg{display:none;}
+.pg.active{display:block;}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.scard{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:var(--radius);padding:18px;
+  box-shadow:var(--shadow-sm);transition:all 0.2s;
+}
+.scard:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.scard .s-ico{font-size:22px;margin-bottom:8px;}
+.scard .s-val{font-family:'Righteous',sans-serif;font-size:30px;line-height:1;}
+.scard .s-lbl{font-size:11px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+.scard.c1 .s-val{color:var(--accent);}
+.scard.c2 .s-val{color:#16a34a;}
+.scard.c3 .s-val{color:var(--warning);}
+.scard.c4 .s-val{color:var(--info);}
+
+/* ── FILTER TABS ── */
+.ftabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.ftab{
+  padding:7px 16px;border-radius:50px;font-size:12px;font-weight:800;
+  background:var(--card);border:2px solid var(--border);
+  color:var(--muted);cursor:pointer;transition:all 0.18s;
+  font-family:'Nunito',sans-serif;
+}
+.ftab:hover{border-color:var(--accent);color:var(--accent);}
+.ftab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.sec-title{font-family:'Righteous',sans-serif;font-size:22px;color:var(--text);}
+.sec-sub{color:var(--muted);font-size:13px;font-weight:600;margin-top:3px;}
+.ref-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card);border:2px solid var(--border);
+  color:var(--text);padding:9px 16px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;transition:border-color 0.18s;
+}
+.ref-btn:hover{border-color:var(--accent);}
+
+/* ── ORDER CARDS ── */
+.og{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.ocard{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  box-shadow:var(--shadow-sm);transition:all 0.2s;
+}
+.ocard:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.ocard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.otoken{font-family:'Righteous',sans-serif;font-size:22px;color:var(--accent);}
+.otime{font-size:11px;color:var(--muted);font-weight:700;}
+.ocname{font-weight:800;font-size:13px;margin-bottom:8px;}
+.oitems{
+  background:var(--bg);border-radius:10px;
+  padding:9px 12px;font-size:12px;font-weight:700;
+  color:var(--muted);line-height:1.6;margin-bottom:12px;
+}
+.ofoot{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.ototl{font-family:'Righteous',sans-serif;font-size:20px;color:var(--accent);}
+.spill{
+  padding:4px 12px;border-radius:50px;
+  font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;
+}
+.s-pending  {background:#fef3c7;color:#b45309;}
+.s-preparing{background:#dbeafe;color:#1d4ed8;}
+.s-ready    {background:#dcfce7;color:#15803d;}
+.s-completed{background:#f3f4f6;color:#6b7280;}
+.s-cancelled{background:#fee2e2;color:#dc2626;}
+
+.arow{display:flex;gap:8px;margin-bottom:10px;}
+.abtn{
+  flex:1;padding:9px;border-radius:10px;border:none;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;transition:all 0.15s;
+}
+.abtn:hover{transform:scale(1.03);}
+.a-prep{background:#dbeafe;color:#1d4ed8;}
+.a-rdy {background:#dcfce7;color:#15803d;}
+.a-done{background:#f3f4f6;color:#374151;}
+
+/* Per-order QR */
+.view-qr{
+  width:100%;background:var(--accent-light);
+  border:1.5px solid var(--border);color:var(--accent-dark);
+  padding:8px;border-radius:10px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+}
+.view-qr:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.order-qr-wrap{display:none;text-align:center;margin-top:10px;}
+.order-qr-wrap.show{display:block;}
+.order-qr-wrap img{
+  width:140px;height:140px;border-radius:12px;
+  border:3px solid var(--border);margin:0 auto;display:block;
+}
+.order-qr-wrap small{
+  display:block;color:var(--muted);font-size:11px;
+  font-weight:700;margin-top:6px;
+}
+
+/* ── MENU TABLE ── */
+.add-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--accent);border:none;color:#fff;
+  padding:10px 20px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 4px 14px rgba(29,185,84,0.35);
+}
+.add-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.mt-wrap{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+.mrow{
+  display:grid;grid-template-columns:1fr 90px 100px 130px 160px;
+  align-items:center;gap:12px;padding:14px 20px;
+  border-bottom:1.5px solid var(--border);
+}
+.mrow:last-child{border:none;}
+.mrow.hdr{
+  background:var(--accent-light);
+  font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--muted);
+}
+.m-name{font-weight:800;font-size:13px;}
+.m-desc{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600;}
+.cat-chip{padding:4px 10px;border-radius:50px;font-size:10px;font-weight:800;text-transform:capitalize;}
+.cat-morning{background:#fef3c7;color:#b45309;}
+.cat-break  {background:#dbeafe;color:#1d4ed8;}
+.cat-lunch  {background:#dcfce7;color:#15803d;}
+.m-price{font-family:'Righteous',sans-serif;font-size:18px;color:var(--accent);}
+.avail-btn{
+  padding:6px 12px;border-radius:8px;border:none;
+  font-size:11px;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:all 0.18s;
+}
+.av-on {background:#dcfce7;color:#15803d;}
+.av-off{background:#fee2e2;color:#dc2626;}
+.m-acts{display:flex;gap:6px;}
+.mact{
+  padding:7px 10px;border-radius:8px;border:none;
+  font-size:11px;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:all 0.15s;
+}
+.mact:hover{transform:scale(1.04);}
+.mact-edit{background:#f0faf4;color:var(--text);}
+.mact-del{background:#fee2e2;color:#dc2626;}
+
+/* ── QR PAGE ── */
+.qr-card{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:var(--radius-lg);padding:36px;
+  max-width:500px;text-align:center;
+  box-shadow:var(--shadow-md);
+}
+.qr-card-title{font-family:'Righteous',sans-serif;font-size:26px;margin-bottom:6px;}
+.qr-card-sub{color:var(--muted);font-size:14px;font-weight:600;margin-bottom:24px;}
+.qr-frame{
+  width:240px;height:240px;margin:0 auto 16px;
+  background:var(--bg);border-radius:18px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.qr-frame img{width:220px;height:220px;border-radius:12px;}
+.qr-url-show{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:11px 14px;
+  font-size:12px;font-weight:700;color:var(--muted);
+  word-break:break-all;margin-bottom:18px;
+}
+.qr-inp{
+  width:100%;border:2px solid var(--border);background:var(--bg);
+  color:var(--text);padding:12px 15px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;
+  outline:none;transition:border-color 0.2s;margin-bottom:10px;
+}
+.qr-inp:focus{border-color:var(--accent);}
+.qr-btns{display:flex;gap:10px;}
+.qr-regen{flex:1;background:var(--bg);border:2px solid var(--border);color:var(--text);padding:11px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+.qr-dl{flex:1;background:var(--accent);border:none;color:#fff;padding:11px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(29,185,84,0.35);}
+
+/* ── MODAL ── */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(13,35,24,0.5);backdrop-filter:blur(6px);
+  z-index:200;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:#fff;border-radius:var(--radius-lg);padding:32px;
+  width:100%;max-width:440px;
+  box-shadow:var(--shadow-lg);
+  animation:pop 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  border:2px solid var(--border);
+}
+@keyframes pop{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-title{font-family:'Righteous',sans-serif;font-size:24px;margin-bottom:20px;color:var(--text);}
+.mf{margin-bottom:14px;}
+.mf label{display:block;font-size:10px;font-weight:900;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+.mf input,.mf select,.mf textarea{
+  width:100%;background:var(--bg);border:2px solid var(--border);
+  color:var(--text);padding:12px 14px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;
+  outline:none;transition:border-color 0.2s;
+}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--accent);}
+.mf textarea{resize:vertical;min-height:70px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-btns{display:flex;gap:10px;margin-top:18px;}
+.cancel-btn{flex:1;background:var(--bg);border:2px solid var(--border);color:var(--text);padding:12px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;}
+.save-btn{flex:2;background:linear-gradient(135deg,var(--accent),#0ea84a);border:none;color:#fff;padding:12px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(29,185,84,0.35);}
+
+/* ── EMPTY / LOAD ── */
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty .eico{font-size:40px;margin-bottom:10px;}
+.empty p{font-weight:800;font-size:14px;}
+.empty small{font-size:12px;font-weight:600;opacity:.7;}
+
+@media(max-width:700px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .mrow{grid-template-columns:1fr 80px;}
+  .mrow > *:nth-child(n+3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR — SAME AS CUSTOMER -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🍔</div>
+    <div class="brand-name">Foodie<span>Spot</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="admin-chip">👤 <span id="adminName">Admin</span></div>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <button class="ntab active" id="n-orders" onclick="showPg('orders')">📋 Live Orders</button>
+  <button class="ntab" id="n-menu"   onclick="showPg('menu')">🍽️ Menu Manager</button>
+  <button class="ntab" id="n-qr"     onclick="showPg('qr')">📱 QR Code</button>
+</nav>
+
+<div class="main">
+
+  <!-- ═══ ORDERS ═══ -->
+  <div class="pg active" id="pg-orders">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Live Orders</div>
+        <div class="sec-sub" id="todayStr">Today</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:11px;font-weight:700;color:var(--muted)" id="lastRef"></span>
+        <button class="ref-btn" onclick="loadOrders()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="scard c1"><div class="s-ico">📋</div><div class="s-val" id="s-tot">—</div><div class="s-lbl">Total Orders</div></div>
+      <div class="scard c2"><div class="s-ico">💰</div><div class="s-val" id="s-rev">—</div><div class="s-lbl">Revenue</div></div>
+      <div class="scard c3"><div class="s-ico">⏳</div><div class="s-val" id="s-pnd">—</div><div class="s-lbl">Pending</div></div>
+      <div class="scard c4"><div class="s-ico">✅</div><div class="s-val" id="s-don">—</div><div class="s-lbl">Completed</div></div>
+    </div>
+
+    <div class="ftabs" id="oFTabs">
+      <button class="ftab active" onclick="filterO('all',this)">All</button>
+      <button class="ftab" onclick="filterO('pending',this)">⏳ Pending</button>
+      <button class="ftab" onclick="filterO('preparing',this)">👨‍🍳 Preparing</button>
+      <button class="ftab" onclick="filterO('ready',this)">🔔 Ready</button>
+      <button class="ftab" onclick="filterO('completed',this)">✅ Completed</button>
+    </div>
+
+    <div class="og" id="og">
+      <div class="empty" style="grid-column:1/-1">
+        <div class="spin"></div><p>Loading orders…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MENU ═══ -->
+  <div class="pg" id="pg-menu">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Menu Manager</div>
+        <div class="sec-sub">Add, edit, set prices and manage food items</div>
+      </div>
+      <button class="add-btn" onclick="openModal()">+ Add Item</button>
+    </div>
+    <div class="ftabs" id="mFTabs">
+      <button class="ftab active" onclick="filterM('all',this)">All Items</button>
+      <button class="ftab" onclick="filterM('morning',this)">☀️ Morning</button>
+      <button class="ftab" onclick="filterM('break',this)">☕ Break</button>
+      <button class="ftab" onclick="filterM('lunch',this)">🍛 Lunch</button>
+    </div>
+    <div class="mt-wrap" id="menuTable">
+      <div class="empty"><div class="spin"></div><p>Loading…</p></div>
+    </div>
+  </div>
+
+  <!-- ═══ QR ═══ -->
+  <div class="pg" id="pg-qr">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Entrance QR Code</div>
+        <div class="sec-sub">Students scan to open the order page</div>
+      </div>
+    </div>
+    <div class="qr-card">
+      <div class="qr-card-title">📱 Student Order QR</div>
+      <div class="qr-card-sub">Print &amp; paste at canteen entrance or on tables</div>
+      <div class="qr-frame"><img id="qrImg" alt="QR Code"/></div>
+      <div class="qr-url-show" id="qrUrlShow">Generating…</div>
+      <label style="font-size:10px;font-weight:900;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:7px">Custom URL (if deployed on different server)</label>
+      <input class="qr-inp" id="qrInp" value="http://localhost:5000"/>
+      <div class="qr-btns">
+        <button class="qr-regen" onclick="genQR()">🔄 Regenerate</button>
+        <button class="qr-dl" onclick="dlQR()">⬇️ Download PNG</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-title" id="mTitle">Add Menu Item</div>
+    <input type="hidden" id="editId"/>
+    <div class="mf">
+      <label>Item Name *</label>
+      <input id="fName" placeholder="e.g. Masala Dosa"/>
+    </div>
+    <div class="two-col">
+      <div class="mf">
+        <label>Price (₹) *</label>
+        <input id="fPrice" type="number" step="0.5" min="1" placeholder="30"/>
+      </div>
+      <div class="mf">
+        <label>Category *</label>
+        <select id="fCat">
+          <option value="morning">☀️ Morning</option>
+          <option value="break">☕ Break</option>
+          <option value="lunch">🍛 Lunch</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <label>Description</label>
+      <textarea id="fDesc" placeholder="Short description of the item…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="save-btn" onclick="saveItem()">💾 Save Item</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+const tk  = localStorage.getItem('fs_token');
+if (!tk) location.href = 'login.html';
+const H = {'Content-Type':'application/json','Authorization':'Bearer '+tk};
+
+document.getElementById('adminName').textContent = localStorage.getItem('fs_admin') || 'Admin';
+document.getElementById('todayStr').textContent =
+  new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+let allOrders = [], allMenu = [];
+
+/* ── PAGE NAV ── */
+function showPg(p) {
+  document.querySelectorAll('.pg').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(x => x.classList.remove('active'));
+  document.getElementById('pg-'+p).classList.add('active');
+  document.getElementById('n-'+p).classList.add('active');
+  if (p === 'orders') loadOrders();
+  if (p === 'menu')   loadMenu();
+  if (p === 'qr')     genQR();
+}
+
+/* ── ORDERS ── */
+async function loadOrders() {
+  try {
+    const [sR, oR] = await Promise.all([
+      fetch(`${API}/api/orders/stats/today`, {headers:H}),
+      fetch(`${API}/api/orders`, {headers:H})
+    ]);
+    const s = await sR.json(), o = await oR.json();
+    allOrders = o;
+    document.getElementById('s-tot').textContent = s.total || 0;
+    document.getElementById('s-rev').textContent = '₹' + (s.revenue || 0);
+    document.getElementById('s-pnd').textContent = (+s.pending||0) + (+s.preparing||0);
+    document.getElementById('s-don').textContent = s.completed || 0;
+    document.getElementById('lastRef').textContent = 'Refreshed ' + new Date().toLocaleTimeString('en-IN');
+    renderOrders(o);
+  } catch {
+    document.getElementById('og').innerHTML =
+      `<div class="empty" style="grid-column:1/-1"><div class="eico">⚠️</div><p>Cannot connect</p><small>python app.py running?</small></div>`;
+  }
+}
+
+function renderOrders(list) {
+  const g = document.getElementById('og');
+  if (!list.length) {
+    g.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="eico">🍽️</div><p>No orders today yet!</p></div>`;
+    return;
+  }
+  g.innerHTML = list.map(o => {
+    const t = new Date(o.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="ocard">
+      <div class="ocard-top">
+        <div class="otoken">${o.token_number}</div>
+        <div class="otime">${t}</div>
+      </div>
+      <div class="ocname">👤 ${o.customer_name || 'Guest'}</div>
+      <div class="oitems">${o.items_list || '—'}</div>
+      <div class="ofoot">
+        <div class="ototl">₹${o.total_amount}</div>
+        <span class="spill s-${o.status}">${o.status}</span>
+      </div>
+      ${actBtns(o)}
+      <button class="view-qr" onclick="toggleOQR(${o.id},this)">📱 View Student QR</button>
+      <div class="order-qr-wrap" id="oqr-${o.id}">
+        <img id="oqrimg-${o.id}" src="" alt="QR"/>
+        <small>Token: ${o.token_number}</small>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function actBtns(o) {
+  if (o.status==='pending')   return `<div class="arow"><button class="abtn a-prep" onclick="setStatus(${o.id},'preparing')">👨‍🍳 Start Preparing</button></div>`;
+  if (o.status==='preparing') return `<div class="arow"><button class="abtn a-rdy"  onclick="setStatus(${o.id},'ready')">🔔 Mark Ready</button></div>`;
+  if (o.status==='ready')     return `<div class="arow"><button class="abtn a-done" onclick="setStatus(${o.id},'completed')">✅ Mark Collected</button></div>`;
+  return '';
+}
+
+async function setStatus(id, status) {
+  await fetch(`${API}/api/orders/${id}/status`, {method:'PATCH', headers:H, body:JSON.stringify({status})});
+  loadOrders();
+}
+
+function filterO(s, el) {
+  document.querySelectorAll('#oFTabs .ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderOrders(s === 'all' ? allOrders : allOrders.filter(o => o.status === s));
+}
+
+async function toggleOQR(oid, btn) {
+  const box = document.getElementById(`oqr-${oid}`);
+  const img = document.getElementById(`oqrimg-${oid}`);
+  if (box.classList.contains('show')) {
+    box.classList.remove('show');
+    btn.textContent = '📱 View Student QR';
+    return;
+  }
+  btn.textContent = 'Loading QR…';
+  try {
+    const r = await fetch(`${API}/api/orders/${oid}/qr`, {headers:H});
+    const d = await r.json();
+    img.src = d.qr_code;
+    box.classList.add('show');
+    btn.textContent = '❌ Hide QR';
+  } catch {
+    btn.textContent = '📱 View Student QR';
+  }
+}
+
+/* ── MENU ── */
+async function loadMenu() {
+  try {
+    const r = await fetch(`${API}/api/menu/all`, {headers:H});
+    allMenu = await r.json();
+    renderMenu(allMenu);
+  } catch {}
+}
+
+function renderMenu(list) {
+  const t = document.getElementById('menuTable');
+  if (!list.length) {
+    t.innerHTML = `<div class="empty"><div class="eico">🍽️</div><p>No items yet</p></div>`;
+    return;
+  }
+  t.innerHTML =
+    `<div class="mrow hdr"><div>ITEM</div><div>CATEGORY</div><div>PRICE</div><div>STATUS</div><div>ACTIONS</div></div>` +
+    list.map(i => `<div class="mrow">
+      <div><div class="m-name">${i.name}</div><div class="m-desc">${i.description||'—'}</div></div>
+      <div><span class="cat-chip cat-${i.category}">${i.category}</span></div>
+      <div class="m-price">₹${i.price}</div>
+      <div>
+        <button class="avail-btn ${i.is_available?'av-on':'av-off'}" onclick="togItem(${i.id})">
+          ${i.is_available ? '✓ Available' : '✗ Off'}
+        </button>
+      </div>
+      <div class="m-acts">
+        <button class="mact mact-edit" onclick='openEdit(${JSON.stringify(i)})'>✏️ Edit</button>
+        <button class="mact mact-del"  onclick="delItem(${i.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterM(cat, el) {
+  document.querySelectorAll('#mFTabs .ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderMenu(cat === 'all' ? allMenu : allMenu.filter(i => i.category === cat));
+}
+
+async function togItem(id) {
+  await fetch(`${API}/api/menu/${id}/toggle`, {method:'PATCH',headers:H});
+  loadMenu();
+}
+async function delItem(id) {
+  if (!confirm('Delete this item?')) return;
+  await fetch(`${API}/api/menu/${id}`, {method:'DELETE',headers:H});
+  loadMenu();
+}
+
+/* ── MODAL ── */
+function openModal() {
+  document.getElementById('mTitle').textContent = 'Add Menu Item';
+  document.getElementById('editId').value = '';
+  ['fName','fPrice','fDesc'].forEach(i => document.getElementById(i).value='');
+  document.getElementById('fCat').value = 'morning';
+  document.getElementById('modalBg').classList.add('open');
+}
+function openEdit(item) {
+  document.getElementById('mTitle').textContent = 'Edit Menu Item';
+  document.getElementById('editId').value  = item.id;
+  document.getElementById('fName').value   = item.name;
+  document.getElementById('fPrice').value  = item.price;
+  document.getElementById('fCat').value    = item.category;
+  document.getElementById('fDesc').value   = item.description||'';
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+
+async function saveItem() {
+  const id   = document.getElementById('editId').value;
+  const body = {
+    name:        document.getElementById('fName').value.trim(),
+    price:       parseFloat(document.getElementById('fPrice').value),
+    category:    document.getElementById('fCat').value,
+    description: document.getElementById('fDesc').value.trim(),
+    is_available: 1
+  };
+  if (!body.name || !body.price) { alert('Name and price required!'); return; }
+  const url = id ? `${API}/api/menu/${id}` : `${API}/api/menu`;
+  await fetch(url, {method: id?'PUT':'POST', headers:H, body:JSON.stringify(body)});
+  closeModal();
+  loadMenu();
+}
+
+/* ── QR ── */
+async function genQR() {
+  const url = document.getElementById('qrInp').value || 'http://localhost:5000';
+  try {
+    const r = await fetch(`${API}/api/qr/generate?url=${encodeURIComponent(url)}`, {headers:H});
+    const d = await r.json();
+    document.getElementById('qrImg').src = d.qr;
+    document.getElementById('qrUrlShow').textContent = d.url;
+  } catch {}
+}
+function dlQR() {
+  const a = document.createElement('a');
+  a.href = document.getElementById('qrImg').src;
+  a.download = 'foodiespot-qr.png';
+  a.click();
+}
+
+function logout() {
+  localStorage.removeItem('fs_token');
+  localStorage.removeItem('fs_admin');
+  location.href = 'login.html';
+}
+
+// Auto-refresh every 30s
+setInterval(() => {
+  if (document.getElementById('pg-orders').classList.contains('active')) loadOrders();
+}, 30000);
+
+// Init
+loadOrders();
+</script>
+</body>
+</html>
