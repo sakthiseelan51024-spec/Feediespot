@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ANNAM — Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Righteous&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f0faf4;--surface:#fff;--card:#fff;
+  --border:#d4eddf;--accent:#1db954;--accent-dark:#17a349;
+  --accent-light:#e8f8ee;--text:#0d2318;--muted:#5a7a68;
+  --shadow-sm:0 2px 8px rgba(29,185,84,0.08);
+  --shadow-md:0 6px 24px rgba(29,185,84,0.12);
+  --shadow-lg:0 12px 40px rgba(29,185,84,0.18);
+  --radius:16px;--radius-lg:24px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  min-height:100vh;background:var(--bg);
+  font-family:'Nunito',sans-serif;color:var(--text);
+  display:flex;flex-direction:column;
+}
+
+/* SAME TOPBAR AS CUSTOMER */
+.topbar{
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(18px);
+  border-bottom:1.5px solid var(--border);
+  height:64px;display:flex;align-items:center;padding:0 22px;
+  box-shadow:var(--shadow-sm);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#0ea84a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 3px 10px rgba(29,185,84,0.35);
+}
+.brand-name{font-family:'Righteous',sans-serif;font-size:22px;letter-spacing:0.5px;}
+.brand-name span{color:var(--accent);}
+
+.page-body{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:30px 20px;
+}
+.login-card{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:var(--radius-lg);padding:40px 36px;
+  width:100%;max-width:420px;
+  box-shadow:var(--shadow-lg);
+}
+.card-icon{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,var(--accent),#0ea84a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(29,185,84,0.4);
+}
+.card-title{
+  font-family:'Righteous',sans-serif;font-size:30px;
+  color:var(--text);margin-bottom:6px;
+}
+.card-sub{color:var(--muted);font-size:14px;font-weight:600;margin-bottom:28px;}
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-size:11px;font-weight:900;
+  color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:7px;
+}
+.field input{
+  width:100%;background:var(--bg);border:2px solid var(--border);
+  color:var(--text);padding:13px 16px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,185,84,0.1);}
+.login-btn{
+  width:100%;background:linear-gradient(135deg,var(--accent),#0ea84a);
+  border:none;color:#fff;padding:15px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;
+  box-shadow:0 6px 22px rgba(29,185,84,0.4);margin-top:4px;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.err{
+  background:#fef2f2;border:1.5px solid #fca5a5;color:#dc2626;
+  padding:12px 16px;border-radius:var(--radius);font-size:13px;font-weight:700;
+  margin-top:14px;display:none;
+}
+.hint{
+  margin-top:18px;background:var(--accent-light);
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:12px 16px;font-size:12px;font-weight:700;color:var(--muted);text-align:center;
+}
+.hint strong{color:var(--accent-dark);}
+.back-link{
+  text-align:center;margin-top:16px;
+  font-size:13px;font-weight:700;color:var(--muted);
+}
+.back-link a{color:var(--accent);text-decoration:none;font-weight:800;}
+</style>
+</head>
+<body>
+
+<!-- SAME TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🍔</div>
+    <div class="brand-name">Foodie<span>Spot</span></div>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="login-card">
+    <div class="card-icon">🔐</div>
+    <div class="card-title">Admin Login</div>
+    <div class="card-sub">Canteen Management — Staff Only</div>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="uname" placeholder="Enter username" autofocus/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="pwd" placeholder="Enter password"
+        onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      Sign In to Dashboard →
+    </button>
+    <div class="err" id="errBox"></div>
+    <div class="hint">Default: <strong>admin</strong> / <strong>admin123</strong></div>
+    <div class="back-link">
+      Student? <a href="/customer/index.html">Go to Order Page →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Already logged in → redirect
+if (localStorage.getItem('fs_token')) location.href = 'dashboard.html';
+
+async function doLogin() {
+  const u   = document.getElementById('uname').value.trim();
+  const p   = document.getElementById('pwd').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('errBox');
+  err.style.display = 'none';
+
+  if (!u || !p) {
+    err.textContent = 'Please enter username and password.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    const r = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: u, password: p})
+    });
+    const d = await r.json();
+    if (r.ok) {
+      localStorage.setItem('fs_token', d.token);
+      localStorage.setItem('fs_admin', d.username);
+      location.href = 'dashboard.html';
+    } else {
+      err.textContent = d.message || 'Invalid credentials';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Dashboard →';
+    }
+  } catch {
+    err.textContent = 'Server not running. Start: python app.py';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Sign In to Dashboard →';
+  }
+}
+</script>
+</body>
+</html>
